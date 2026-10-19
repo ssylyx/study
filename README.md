@@ -59,4 +59,61 @@ void mergeSort(vector<int>& nums) {
     if (nums.size() > 1) mergeSort(nums, 0, nums.size() - 1);
 }
 
+```
+
+## 快速排序
+### 实现一：Hoare 分区（推荐，效率高）
+- 单指针扫描：i 标记"下一个小于 pivot 的位置"，j 负责扫描
+- 递归边界是 [l, p-1] 和 [p+1, r]（pivot 已就位）
 ```cpp
+#include <vector>
+using namespace std;
+
+// 分区：返回 pivot 最终位置；左边都 <= pivot，右边都 >= pivot
+int partition(vector<int>& nums, int l, int r) {
+    int pivot = nums[l + (r - l) / 2];   // 取中间值做基准（也可随机）
+    int i = l - 1, j = r + 1;
+
+    while (true) {
+        do { i++; } while (nums[i] < pivot);    // 从左找 >= pivot 的
+        do { j--; } while (nums[j] > pivot);    // 从右找 <= pivot 的
+        if (i >= j) return j;                   // 相遇则分区完成
+        swap(nums[i], nums[j]);                 // 交换，让两边各就各位
+    }
+}
+
+void quickSort(vector<int>& nums, int l, int r) {
+    if (l >= r) return;
+    int p = partition(nums, l, r);
+    quickSort(nums, l, p);        // 左半 [l, p]
+    quickSort(nums, p + 1, r);    // 右半 [p+1, r]
+}
+
+void quickSort(vector<int>& nums) {
+    if (nums.size() > 1) quickSort(nums, 0, nums.size() - 1);
+}
+```
+### 实现二：Lomuto 分区（更简单好背）
+- 单指针扫描：i 标记"下一个小于 pivot 的位置"，j 负责扫描
+- 递归边界是 [l, p-1] 和 [p+1, r]（pivot 已就位）
+```cpp
+int partitionLomuto(vector<int>& nums, int l, int r) {
+    int pivot = nums[r];           // 取最右做基准
+    int i = l;                     // i 左边都是 <= pivot 的
+    for (int j = l; j < r; ++j) {
+        if (nums[j] < pivot) {
+            swap(nums[i], nums[j]);
+            i++;
+        }
+    }
+    swap(nums[i], nums[r]);        // pivot 放到正确位置
+    return i;
+}
+
+void quickSort(vector<int>& nums, int l, int r) {
+    if (l >= r) return;
+    int p = partitionLomuto(nums, l, r);
+    quickSort(nums, l, p - 1);
+    quickSort(nums, p + 1, r);
+}
+```
